@@ -34,9 +34,31 @@ images, image_names, image_labels = load_images_and_labels(chemin)
 ## Réseau de neurones
 
 # Création des jeux de données
-import sklearn as sk
+from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = sk.train_test_split(images, image_labels, test_size=0.2, random_state=42)
-X_train, X_test = X_train / 255.0, X_test / 255.0
-
+X_train, X_test, y_train, y_test = train_test_split(images, image_labels, test_size=0.2, random_state=42)
+print(X_train.shape)
+# Faire une division par 255 pour avoir des valeurs entre 0 et 1
 # Création de la structure du CNN 
+
+import tensorflow as ts 
+from tensorflow.keras import layers, models 
+
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(13, activation='softmax')
+])
+
+model.compile(optimizer='adam',loss= 'categorical_crossentropy', metrics=['accuracy'])
+
+model.fit(X_train, y_train, epochs=5, validation_data=(X_test, y_test))
+
+test_loss , test_acc = model.evaluate(X_test, y_test)
+print("Accuracy", test_acc)

@@ -1,4 +1,4 @@
-import tensorflow as tf
+"""import tensorflow as tf
 from tensorflow.keras import datasets, layers, models
 
 # Charger les données MNIST
@@ -25,4 +25,6 @@ model.fit(train_images, train_labels, epochs=5, validation_data=(test_images, te
 # Évaluation du modèle sur les données de test
 test_loss, test_acc = model.evaluate(test_images, test_labels)
 print("Test accuracy:", test_acc)
+
+"""
 
