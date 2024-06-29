@@ -45,6 +45,7 @@ print(X_train.shape)
 
 import tensorflow as ts 
 from tensorflow.keras import layers, models 
+import tensorflow_datasets as tfds
 
 model = models.Sequential([
     layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
