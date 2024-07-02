@@ -97,9 +97,9 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
     layer_number = st.sidebar.empty()
     filter_number = st.sidebar.empty()
 
-
+    set_up = True
     
-    while True :
+    while set_up == True :
         conv_output = conv1_model.predict(image_c)
         for j in range (0,32):
             st.write('''Couche 1 filtre, j 
@@ -183,13 +183,23 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
 
         time.sleep(animation_speed)
         
-    
-        st.button("Re-run")
+        set_up = False
+
+    if st.button("Re-run") :
+        set_up = True
+
 
     filter_index = st.sidebar.slider("Sélectionnez un filtre", 0, 31, 0)
 
+    layer_index = st.sidebar.selectbox("Sélectionnez une couche", 6, 0)
 
-    layer_index = st.sidebar.selectbox("Sélectionnez une couche", 6, )
+    filter_image = conv_output[layer_index][0, :, :, filter_index]
+    buf = BytesIO()
+    plt.imsave(buf, filter_image, cmap='viridis')
+    buf.seek(0)
+    image.image(buf)
+
+
 
 
 
