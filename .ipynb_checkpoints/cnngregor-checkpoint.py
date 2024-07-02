@@ -2,7 +2,7 @@
 import os
 from PIL import Image
 import numpy as np
-import re
+import re 
 
 chemin = r"C:\Users\ronci\Documents\Ecole Mines\Cours\Info\PBC_dataset_normal_DIB_224\PBC_dataset_normal_DIB_224"
 def load_images_and_labels(directory):
@@ -31,9 +31,7 @@ def load_images_and_labels(directory):
 
 images, image_names, image_labels = load_images_and_labels(chemin)
 
-# # Réseau de neurones
-
-pip install scikit-learn
+## Réseau de neurones
 
 # Création des jeux de données
 from sklearn.model_selection import train_test_split
@@ -41,7 +39,7 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(images, image_labels, test_size=0.2, random_state=42)
 print(X_train.shape)
 # Faire une division par 255 pour avoir des valeurs entre 0 et 1
-# Création de la structure du CNN
+# Création de la structure du CNN 
 
 import tensorflow as ts 
 from tensorflow.keras import layers, models 
