@@ -26,6 +26,8 @@ blablabla
 
 
 if page == pages[2] :
+    st.write( ''' 
+## Mise en place de notre modèle CNN et analyse ''')
     st.write('''
 Ici je veux utiliser les commandes CNN donc surtout le truc que t'avais fait Grégor avec les filtre
 Puis, je veux faire apparaître l'image qui est choisie (avec les commandes streamlit on peut zoomer dessus etc
@@ -33,6 +35,30 @@ Ensuite, j'essayerai de faire en animation les différentes étapes des filtres
 Sur le côté je vais mettre des barres avec le numéro du filtre (qui bouge avec une barre) et le numéro de l'étape (pareil)
 Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'image qu'on veut
             ''')
+
+    st.title("Architecture du Modèle de Convolution")
+    
+    model_code = '''model2= models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(360, 363, 3)),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(128, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2,2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64,(2,2),activation='relu'),
+        layers.Flatten(),
+        layers.Dense(256, activation='relu'),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(8, activation='softmax')
+    ])'''
+
+    st.code(model_code, language='python')
 
 
     model2= models.Sequential([
@@ -55,6 +81,7 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
         layers.Dense(8, activation='softmax')
     ])
 
+   
     df =model2.summary()
     st.write(df)
     model2.compile(optimizer='adam',loss= 'sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -97,9 +124,9 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
     layer_number = st.sidebar.empty()
     filter_number = st.sidebar.empty()
 
-
+    set_up = True
     
-    while True :
+    while set_up == True :
         conv_output = conv1_model.predict(image_c)
         for j in range (0,32):
             st.write('''Couche 1 filtre, j 
@@ -183,13 +210,23 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
 
         time.sleep(animation_speed)
         
-    
-        st.button("Re-run")
+        set_up = False
+
+    if st.button("Re-run") :
+        set_up = True
+
 
     filter_index = st.sidebar.slider("Sélectionnez un filtre", 0, 31, 0)
 
+    layer_index = st.sidebar.selectbox("Sélectionnez une couche", 6, 0)
 
-    layer_index = st.sidebar.selectbox("Sélectionnez une couche", 6, )
+    filter_image = conv_output[layer_index][0, :, :, filter_index]
+    buf = BytesIO()
+    plt.imsave(buf, filter_image, cmap='viridis')
+    buf.seek(0)
+    image.image(buf)
+
+
 
 
 
