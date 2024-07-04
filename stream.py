@@ -8,12 +8,6 @@ from PIL import Image
 import time
 from io import BytesIO
 
-
-
-
-st.sidebar.title('Sommaire')
-pages = ['Présentation du projet', 'Exploration des données', 'Analyse des données','Comparaison fine-tuning et Transfert-Learning']
-
 page = st.sidebar.radio("Aller vers la page", pages)
 
 if page == pages[0] :
@@ -22,7 +16,7 @@ if page == pages[0] :
 #Contexte du projet
 blablabla
          ''')
-    
+
 
 
 if page == pages[2] :
@@ -225,9 +219,3 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
     plt.imsave(buf, filter_image, cmap='viridis')
     buf.seek(0)
     image.image(buf)
-
-
-
-
-
-
