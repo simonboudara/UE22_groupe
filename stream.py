@@ -1,27 +1,51 @@
 import streamlit as st
 import pandas as pd
+import tensorflow as tf
 from tensorflow.keras import layers, models
 import numpy as np 
 import matplotlib.pyplot as plt
 import random
 from PIL import Image
 import time
+import io
 from io import BytesIO
-
+import os
 
 
 
 st.sidebar.title('Sommaire')
-pages = ['Présentation du projet', 'Exploration des données', 'Analyse des données','Comparaison fine-tuning et Transfert-Learning']
+pages = ['Présentation du projet', 'Exploration des données', 'Analyse des données','Transfert-Learning','Fine-tuning','Comparaison fine-tuning et Transfert-Learning']
 
 page = st.sidebar.radio("Aller vers la page", pages)
 
 if page == pages[0] :
+    st.title("UE22 - L'IA au service de la médecine")
     st.write(''' 
-## UE 22 - Machine Learning
-#Contexte du projet
-blablabla
-         ''')
+    L'intelligence artificielle (IA) est un secteur en plein essor avec un avenir prometteur. Ses nombreuses applications contribuent à améliorer la médecine, 
+    notamment à travers des opérations assistées, le suivi à distance des patients, des prothèses intelligentes, et des traitements personnalisés grâce au big data.
+             
+    ## Les globules blancs ''')
+    st.write(''' Les globules blancs sont des cellules produites dans la moelle osseuse et présentes, entre autres, dans le sang les organes lymphoïdes et 
+    de nombreux tissus conjonctifs de l'organisme. Il en existe plusieurs types. Chaque type joue un rôle important au sein du système immunitaire 
+    en participant à la protection contre les agressions d'organismes extérieurs. Les types de globules blancs aident à diagnostiquer des troubles du sang et des pathologies.
+    Pour cela, il est nécessaire de pouvoir quantifier le nombre 
+    de globules blancs et leur type.''')
+    image_random1 = st.empty()
+    img_path = r"C:\Users\chata\Downloads\Blausen_0909_WhiteBloodCells.png"
+    globule = Image.open(img_path)
+    buf = BytesIO()
+    plt.imsave(buf, globule, cmap='viridis')
+    buf.seek(0)
+    image_random1.image(buf)
+                
+    st.write('''
+    ###         ''')
+    st.write('''
+    Expliquer pourquoi on fait de la classification de globules blancs ?
+                Images recadrées : globules blancs au milieu et globules rouges autour, différent que la réalité au microscope, 
+             but de faire du comptage sur une surface
+                si bcp trop d'un certain type : infection de globules blancs, trouver le range de la normalité
+        ''')
     
 
 
@@ -29,15 +53,48 @@ if page == pages[2] :
     st.write( ''' 
 ## Mise en place de notre modèle CNN et analyse ''')
     st.write('''
-Ici je veux utiliser les commandes CNN donc surtout le truc que t'avais fait Grégor avec les filtre
-Puis, je veux faire apparaître l'image qui est choisie (avec les commandes streamlit on peut zoomer dessus etc
-Ensuite, j'essayerai de faire en animation les différentes étapes des filtres 
-Sur le côté je vais mettre des barres avec le numéro du filtre (qui bouge avec une barre) et le numéro de l'étape (pareil)
-Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'image qu'on veut
-            ''')
+Les Convolutional Neural Networks (CNN) sont une classe de réseaux de neurones particulièrement adaptés au traitement et à l'analyse des données visuelles.''')
 
-    st.title("Architecture du Modèle de Convolution")
-    
+    st.title("Architecture du Modèle de Convolution du Net")
+
+    model_code1 = ''' from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import InputLayer, Conv2D, MaxPool2D, Flatten, Dense
+
+model1 = Sequential([
+    InputLayer(input_shape=(28, 28, 3), name='input'), #input d'entrée rgb, juste couche crée vide
+
+
+    Conv2D(filters=16, kernel_size=(5, 5), padding='same', activation='sigmoid', name='conv1'), #16 filtres différents dans la couche, filtre = matrice qui passe sur ton image en faisant produit matriciel. Padding comment je gère les bords
+    MaxPool2D(strides=2, name='max1'), #diminution dimension : padd il fait une selection pour diminuer dimension en prenant ici spécifiquement pixel max intensité, c'est les dimensions images qui prennent
+    Conv2D(filters=16, kernel_size=(5, 5), padding='valid', activation='sigmoid', name='conv2'), #même chose que conv2D_1
+    MaxPool2D(strides=2, name='max2'),
+    Flatten(name='flat'),
+
+    Dense(120, activation='sigmoid', name='dense1'),
+    Dense(84, activation='sigmoid', name='dense2'),
+    Dense(8, activation='softmax', name='classifier')
+], name='LeNet')
+'''
+    st.code(model_code1, language='python')
+    st.write(''' Ce modèle de convolution du net renvoie une accuracy de 0.74 en moyenne, avec des images de taille (28,28). ''')
+
+    model_code2 = ''' from tensorflow.keras import layers, models
+
+model2= models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 3)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(8, activation='softmax')
+])'''
+
+    st.code( model_code2, language = 'python')
+    st.write(''' Ce modèle de convolution renvoie une accuracy de 0.94 en moyenne, avec des images de taille (28,28). ''')
+
     model_code = '''model2= models.Sequential([
         layers.Conv2D(32, (3, 3), activation='relu', input_shape=(360, 363, 3)),
         layers.MaxPooling2D((2, 2)),
@@ -59,6 +116,7 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
     ])'''
 
     st.code(model_code, language='python')
+    st.write(''' Ce modèle de convolution renvoie une accuracy de 0.98 en moyenne, avec des images de taille (360,363). ''')
 
 
     model2= models.Sequential([
@@ -81,150 +139,183 @@ Ce qu'il serait cool c'est qu'en bougeant sur les barres, on peut remonter à l'
         layers.Dense(8, activation='softmax')
     ])
 
-   
-    df =model2.summary()
-    st.write(df)
-    model2.compile(optimizer='adam',loss= 'sparse_categorical_crossentropy', metrics=['accuracy'])
+    st.write( ''' On peut montrer le sommaire de ce programme, qui témoigne des différents paramètres entraînés ou non, et d'autres spécificités.''')
     
+    def get_model_summary(model):
+        stream = io.StringIO()
+        model.summary(print_fn=lambda x: stream.write(x + '\n'))
+        summary_str = stream.getvalue()
+        stream.close()
+        return summary_str
+    
+    if st.button("Afficher le sommaire du modèle"):
+        summary = get_model_summary(model2)
+        st.text(summary)
+    
+    st.title("Analayse des différentes étapes du modèle de convolution")
+    st.write('''
+### Choix d'une image ''')
+    st.write(''' 
+On choisit aléatoirement une image dans la dataset''')
+    
+    image_random = st.empty()
+    img_path = r"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\random_image.jpg"
+    random_image = Image.open(img_path)
+    buf = BytesIO()
+    plt.imsave(buf, random_image, cmap='viridis')
+    buf.seek(0)
+    image_random.image(buf)
 
     frame_text = st.sidebar.empty()
+    st.write('''
+    ### Etude plus précise de chaque étape ''')
+    st.write(''' On peut également choisir précisément l'image traitée par la couche et le filtre voulus en déplaçant les barres latérales.''')
     image_choisie = st.empty()
-    image = st.empty()
+    placeholder = st.empty()
 
-    animation_speed = 0.1 
-
-    conv1_model = tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[0].output)
-    conv2_model =tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[2].output)
-    conv3_model = tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[4].output)
-    conv4_model = tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[6].output)
-    conv5_model = tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[8].output)
-    conv6_model = tf.keras.Model(inputs=model2.inputs,outputs=model2.layers[10].output)
-
-    classes = [os.path.join('/content/PBC_dataset_normal_DIB_224/PBC_dataset_normal_DIB_224',name) for name in os.listdir('/content/PBC_dataset_normal_DIB_224/PBC_dataset_normal_DIB_224')]
-    random_classe = random.choice(classes)
-    images = [os.path.join(random_classe, name) for name in os.listdir(random_classe)]
-    random_image = random.choice(images)
-    st.write('''"L'image initiale choisie par le programme est: 
-             ''')
-    image_choisie.image(random_image)
-    image_c = tf.keras.preprocessing.image.load_img(random_image, target_size=(360, 363, 3))
-    image_b=image_c
-
-    image_b=tf.keras.preprocessing.image.img_to_array(image_b)
-    image_b = tf.keras.applications.vgg16.preprocess_input(image_b)
-    image_b = tf.expand_dims(image_b, axis=0)
-    
-
-
-    image_c = tf.keras.preprocessing.image.img_to_array(image_c)
-    image_c = tf.keras.applications.vgg16.preprocess_input(image_c)
-    image_c = tf.expand_dims(image_c, axis=0)
-    image_b = image_c
 
     layer_number = st.sidebar.empty()
     filter_number = st.sidebar.empty()
 
-    set_up = True
+    layer_index = st.sidebar.slider("Sélectionnez une couche", 1, 6, 1)
+    filter_index = st.sidebar.slider("Sélectionnez un filtre", 0, 63, 0)
+    image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche{layer_index}_filtre{filter_index}.png"
+
     
-    while set_up == True :
-        conv_output = conv1_model.predict(image_c)
+    filter_image = Image.open(image_path)
+    buf = BytesIO()
+    plt.imsave(buf, filter_image, cmap='viridis')
+    buf.seek(0)
+    image_choisie.image(buf)
+    with placeholder.container():    
+        st.write(f'Couche {layer_index} filtre {filter_index}')
+    st.write('''
+    ### Visualisation détaillée ''')
+    st.write(''' 
+On peut afficher les différentes images renvoyées à chaque étape du réseau de neurones.''')
+    
+    image = st.empty()
+    placeholder2 = st.empty()
+    
+    if st.button('Run'):
+
+        if st.button("Stop"):
+                st.stop()
+    
         for j in range (0,32):
-            st.write('''Couche 1 filtre, j 
-                     ''')
-            layer_number.write('Couche 1')
-            filter_number.write(f'Couche 1 filtre {j}')
-            filter_image = conv_output[0, :, :, j]
+        
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche1_filtre{j}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
-  
-
-        conv_output2= conv2_model.predict(image_c)
+            with placeholder2.container():
+                st.write(f'Couche 1 filtre {j}')
+            time.sleep(1)
   
 
         for j in range (0,64):
 
-            st.write('''Couche 2 filtre, j 
-                     ''')
+            with placeholder2.container():
+                st.write(f'Couche 2 filtre {j}')
             layer_number.write('Couche 2')
             filter_number.write(f'Couche 2 filtre {j}')
-            filter_image = conv_output2[0, :, :, j]
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche2_filtre{j}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
-
-
-        conv_output3 = conv3_model.predict(image_c)
+            time.sleep(1)
 
         for i in range (0,64):
-            st.write('''Couche 3 filtre, i 
-                     ''')
+            with placeholder2.container():    
+                st.write(f'Couche 3 filtre {i}')
             layer_number.write('Couche 3')
             filter_number.write(f'Couche 3 filtre {i}')
-            filter_image = conv_output2[0, :, :, i]
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche3_filtre{i}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
+            time.sleep(1)
     
-        conv_output4 = conv4_model.predict(image_c)
         for i in range (0,64):
-            st.write('''Couche 4 filtre, i 
-                     ''')
+            with placeholder2.container():    
+                st.write(f'Couche 4 filtre {i}')
             layer_number.write('Couche 4')
             filter_number.write(f'Couche 4 filtre {i}')
-            filter_image = conv_output2[0, :, :, i]
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche4_filtre{i}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
+            time.sleep(1)
  
-
-        conv_output5 = conv5_model.predict(image_c)
         for i in range (0,64):
-            st.write('''Couche 5 filtre, i
-                     ''')
+            with placeholder2.container():   
+                st.write(f'Couche 5 filtre {i}')
             layer_number.write('Couche 5')
             filter_number.write(f'Couche 5 filtre {i}')
-            filter_image = conv_output2[0, :, :, i]
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche5_filtre{i}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
+            time.sleep(1)
  
 
-        conv_output6 = conv6_model.predict(image_c)
         for i in range (0,64):
-            st.write('''Couche 6 filtre, i
-                     ''')
+            with placeholder2.container():    
+                st.write(f'Couche 6 filtre {i}')
             layer_number.write('Couche 6')
             filter_number.write(f'Couche 6 filtre {i}')
-            filter_image = conv_output2[0, :, :, i]
+            image_path = rf"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\Couche6_filtre{i}.png"
+            filter_image = Image.open(image_path)
             buf = BytesIO()
             plt.imsave(buf, filter_image, cmap='viridis')
             buf.seek(0)
             image.image(buf)
+            time.sleep(1)
 
 
-        time.sleep(animation_speed)
-        
-        set_up = False
-
-    if st.button("Re-run") :
-        set_up = True
-
-
-    filter_index = st.sidebar.slider("Sélectionnez un filtre", 0, 31, 0)
-
-    layer_index = st.sidebar.selectbox("Sélectionnez une couche", 6, 0)
-
-    filter_image = conv_output[layer_index][0, :, :, filter_index]
+    st.title('Utilisation de Grad-Cam')
+    st.write(''' Les réseaux de neurones ont pour but de traiter des données pour extraire des représentations utile à l’atteinte d’un objectif. C'est pour cela que nous 
+    avons cherché à utiliser Grad-Cam. En effet, Grad-Cam est une méthode de visualisation des parties d'une image donnée qui ont permis 
+    à un convnet de décider sur la classification finale. Il permet de comprendre ce que les CNN regardent réellement.''')
+    st.write(''' 
+### Carte thermique ''')
+    st.write(''' La carte d’activation de classe pondérée par le gradient Grad-CAM produit une carte thermique qui met en évidence les régions importantes d’une image 
+    en utilisant les gradients de la cible (ici le globule et ses spécificités) de la couche convolutive finale. En simple, elle indique
+    dans quelle mesure une partie correspond à un lymphocyte, ou autre.''')
+    image = st.empty()
+    image_path = r"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\activations_images3\Grad_cam.png"
+    filter_image = Image.open(image_path)
     buf = BytesIO()
     plt.imsave(buf, filter_image, cmap='viridis')
     buf.seek(0)
     image.image(buf)
+
+    st.write(''' 
+### Superposition de l'image et du gradient ''')
+    st.write(''' On peut ensuite superposer ce gradient thermique avec l'image considérée. Ainsi, on observe concrètement si les parties 
+    considérées par le modèle pour trancher sont pertinentes. Cette méthode peut donc permettre de trouver le problème, si jamais.''')
+    image2 = st.empty()
+    image_path = r"C:\Users\chata\OneDrive\Documents\activation_image_info\activations_images2\activations_images3\superimposed_cam.png"
+    filter_image = Image.open(image_path)
+    buf = BytesIO()
+    plt.imsave(buf, filter_image, cmap='viridis')
+    buf.seek(0)
+    image2.image(buf)
+    
+
+
+
+
 
 
 
