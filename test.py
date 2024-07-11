@@ -1,30 +1,23 @@
-"""import tensorflow as tf
-from tensorflow.keras import datasets, layers, models
+import os
+import pandas as pd
+from PIL import Image
 
-# Charger les données MNIST
-(train_images, train_labels), (test_images, test_labels) = datasets.mnist.load_data()
-# Normaliser les valeurs des pixels pour les mettre dans la plage [0, 1]
-train_images, test_images = train_images / 255.0, test_images / 255.0
+def create_csv_from_image_folder(input_folder, output_csv):
+    """
+    Crée un fichier CSV à partir d'un dossier contenant des images en utilisant Pandas.
+    """
+    image_files = [os.path.join(input_folder, file) for file in os.listdir(input_folder) if file.endswith(('.jpg', '.jpeg', '.png', '.gif'))]
+    df = pd.DataFrame({'image_path': image_files})
+    df.to_csv(output_csv, index=False)
+"""    new_size=(360,363)
+    for image_path in image_files :
+        image = Image.open(image_path)
+        if image.size != new_size :
+            image_files.remove(image_path)"""
 
-# Définition du modèle
-model = models.Sequential([
-    layers.Flatten(input_shape=(28, 28)),
-    layers.Dense(128, activation='relu'),
-    layers.Dense(64, activation='relu'),
-    layers.Dense(10, activation='softmax')
-])
 
-# Compilation du modèle
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
 
-# Entraînement du modèle
-model.fit(train_images, train_labels, epochs=5, validation_data=(test_images, test_labels))
-
-# Évaluation du modèle sur les données de test
-test_loss, test_acc = model.evaluate(test_images, test_labels)
-print("Test accuracy:", test_acc)
-
-"""
-
+# Exemple d'utilisation
+input_folder = r"C:\Users\ronci\Downloads\archive\snkd93bnjr-1\PBC_dataset_normal_DIB\PBC_dataset_normal_DIB\Globule blanc\neutrophil"  # Chemin du dossier contenant les images
+output_csv = r"C:\Users\ronci\Downloads\archive\snkd93bnjr-1\PBC_dataset_normal_DIB\PBC_dataset_normal_DIB\Globule blanc CSV\neutrophil.csv"  # Nom du fichier CSV de sortie
+create_csv_from_image_folder(input_folder, output_csv)
